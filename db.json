@@ -1,0 +1,105 @@
+{
+  "users": [
+    {
+      "id": "user-001",
+      "username": "user1",
+      "password": "admin123",
+      "role": "admin",
+      "favoritePlaces": [
+        {
+          "placeId": "place-01",
+          "name": "place-name-01"
+        },
+        {
+          "placeId": "place-03",
+          "name": "place-name-03"
+        },
+        {
+          "placeId": "0960A72E428BF86CE9FF1EBAA304715F",
+          "name": "ZAMZAM"
+        },
+        {
+          "placeId": "A50A5B3C41EE9CC844F531A9D8BB3232",
+          "name": "ESCALATOR"
+        },
+        {
+          "placeId": "7EA3B5804F3D197250758DAEC6676134",
+          "name": "ELEVATOR"
+        }
+      ],
+      "recentSavedPlaces": [
+        {
+          "placeId": "CD3F4A1A413B353647AF7DB3E4E8FBB6",
+          "name": "QURAN",
+          "savedAt": "2026-06-25T16:58:25.719334+00:00"
+        },
+        {
+          "placeId": "A50A5B3C41EE9CC844F531A9D8BB3232",
+          "name": "ESCALATOR",
+          "savedAt": "2026-06-25T16:58:19.778429+00:00"
+        },
+        {
+          "placeId": "7EA3B5804F3D197250758DAEC6676134",
+          "name": "ELEVATOR",
+          "savedAt": "2026-06-25T16:58:19.760135+00:00"
+        }
+      ]
+    },
+    {
+      "id": "user-002",
+      "username": "player_one",
+      "password": "pass456",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-003",
+      "username": "player_two",
+      "password": "pass789",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-004",
+      "username": "city_explorer",
+      "password": "city123",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-005",
+      "username": "map_admin",
+      "password": "admin456",
+      "role": "admin",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-006",
+      "username": "guest_user",
+      "password": "guest123",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-007",
+      "username": "tester_one",
+      "password": "test123",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    },
+    {
+      "id": "user-008",
+      "username": "user111",
+      "password": "admin111",
+      "role": "admin",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
+    }
+  ]
+}
