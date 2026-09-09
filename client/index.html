@@ -1,368 +1,398 @@
 <!DOCTYPE html>
+<!--
+  Test client for my UE5 mock server (server.py).
+  Plain HTML/CSS/JS, no framework — just fetch() against the Flask API.
+  See server_documentation.md for the endpoints this talks to.
+-->
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Route Control — UE5 Mock Server Console</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UE5 Mock Server — Test Client</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧪</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<div class="app">
+  <div class="app">
 
-  <!-- ================= TOP BAR ================= -->
-  <header class="topbar">
-    <div class="topbar__brand">
-      <span class="brand__dot" id="status-dot" title="Server status"></span>
-      <span class="brand__name">Route Control</span>
-      <span class="brand__tag">mock server console</span>
-    </div>
-
-    <div class="topbar__base">
-      <label for="base-url">BASE URL</label>
-      <input type="text" id="base-url" value="http://localhost:3000" spellcheck="false" autocomplete="off">
-      <button id="ping-btn" class="btn btn--ghost">Ping /health</button>
-    </div>
-
-    <div class="topbar__session" id="session-badge">
-      <span class="session__label">not signed in</span>
-    </div>
-  </header>
-
-  <div class="app__body">
-
-    <!-- ================= SIDEBAR NAV ================= -->
-    <nav class="sidebar" id="sidebar">
-
-      <div class="sidebar__group">
-        <p class="sidebar__group-title">Auth</p>
-        <button class="route" data-panel="panel-auth" data-method="POST" data-path="/auth/signup">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/auth/signup</span>
-        </button>
-        <button class="route route--active" data-panel="panel-auth" data-method="POST" data-path="/auth/login">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/auth/login</span>
-        </button>
-        <button class="route" data-panel="panel-auth" data-method="POST" data-path="/auth/logout">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/auth/logout</span>
-        </button>
+    <!-- ================= TOP BAR ================= -->
+    <header class="topbar">
+      <div class="topbar__brand">
+        <span class="brand__dot" id="status-dot" title="Server status"></span>
+        <span class="brand__name">UE5 Mock Server</span>
+        <span class="brand__tag">test client</span>
       </div>
 
-      <div class="sidebar__group">
-        <p class="sidebar__group-title">Users <span class="badge-admin">admin</span></p>
-        <button class="route" data-panel="panel-users" data-method="GET" data-path="/users">
-          <span class="route__method route__method--get">GET</span>
-          <span class="route__path">/users</span>
-        </button>
-        <button class="route" data-panel="panel-users" data-method="POST" data-path="/users">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/users</span>
-        </button>
-        <button class="route" data-panel="panel-users" data-method="PUT" data-path="/users/:id/role">
-          <span class="route__method route__method--put">PUT</span>
-          <span class="route__path">/users/:id/role</span>
-        </button>
-        <button class="route" data-panel="panel-users" data-method="DELETE" data-path="/users/:id">
-          <span class="route__method route__method--delete">DEL</span>
-          <span class="route__path">/users/:id</span>
-        </button>
+      <div class="topbar__base">
+        <label for="base-url">BASE URL</label>
+        <input type="text" id="base-url" value="http://localhost:3000" spellcheck="false" autocomplete="off">
+        <button id="ping-btn" class="btn btn--ghost">Ping /health</button>
       </div>
 
-      <div class="sidebar__group">
-        <p class="sidebar__group-title">Favorite Places</p>
-        <button class="route" data-panel="panel-favorites" data-method="GET" data-path="/users/:id/favorites">
-          <span class="route__method route__method--get">GET</span>
-          <span class="route__path">/users/:id/favorites</span>
-        </button>
-        <button class="route" data-panel="panel-favorites" data-method="POST" data-path="/users/:id/favorites">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/users/:id/favorites</span>
-        </button>
+      <div class="topbar__session" id="session-badge">
+        <span class="session__label">not signed in</span>
       </div>
+    </header>
 
-      <div class="sidebar__group">
-        <p class="sidebar__group-title">Recent Places</p>
-        <button class="route" data-panel="panel-recent" data-method="GET" data-path="/users/:id/recent">
-          <span class="route__method route__method--get">GET</span>
-          <span class="route__path">/users/:id/recent</span>
-        </button>
-        <button class="route" data-panel="panel-recent" data-method="POST" data-path="/users/:id/recent">
-          <span class="route__method route__method--post">POST</span>
-          <span class="route__path">/users/:id/recent</span>
-        </button>
-      </div>
+    <div class="app__body">
 
-      <div class="sidebar__group">
-        <p class="sidebar__group-title">System</p>
-        <button class="route" data-panel="panel-health" data-method="GET" data-path="/health">
-          <span class="route__method route__method--get">GET</span>
-          <span class="route__path">/health</span>
-        </button>
-      </div>
+      <!-- ================= SIDEBAR NAV ================= -->
+      <nav class="sidebar" id="sidebar">
 
-    </nav>
-
-    <!-- ================= MAIN ================= -->
-    <main class="main">
-
-      <!-- AUTH PANEL -->
-      <section class="panel panel--active" id="panel-auth">
-        <header class="panel__header">
-          <h1>Auth</h1>
-          <p>Sign up, log in, and manage the active bearer token.</p>
-        </header>
-
-        <div class="panel__grid panel__grid--2">
-
-          <form class="card" id="login-form" data-method="POST" data-path="/auth/login">
-            <h2 class="card__title">Log in</h2>
-            <label class="field">
-              <span>Username</span>
-              <input type="text" name="username" id="login-username" autocomplete="username" required>
-            </label>
-            <label class="field">
-              <span>Password</span>
-              <input type="password" name="password" id="login-password" autocomplete="current-password" required>
-            </label>
-            <button type="submit" class="btn btn--primary">Log in</button>
-          </form>
-
-          <form class="card" id="signup-form" data-method="POST" data-path="/auth/signup">
-            <h2 class="card__title">Create account</h2>
-            <label class="field">
-              <span>Username</span>
-              <input type="text" name="username" id="signup-username" autocomplete="username" required>
-            </label>
-            <label class="field">
-              <span>Password</span>
-              <input type="password" name="password" id="signup-password" autocomplete="new-password" required>
-            </label>
-            <button type="submit" class="btn btn--secondary">Create account</button>
-            <p class="card__hint">New accounts always get the <code>user</code> role.</p>
-          </form>
-
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">Auth</p>
+          <button class="route" data-panel="panel-auth" data-method="POST" data-path="/auth/signup">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/auth/signup</span>
+          </button>
+          <button class="route route--active" data-panel="panel-auth" data-method="POST" data-path="/auth/login">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/auth/login</span>
+          </button>
+          <button class="route" data-panel="panel-auth" data-method="POST" data-path="/auth/logout">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/auth/logout</span>
+          </button>
         </div>
 
-        <div class="card card--session" id="session-card">
-          <h2 class="card__title">Current session</h2>
-          <dl class="session-details">
-            <div><dt>User</dt><dd id="session-username">—</dd></div>
-            <div><dt>Role</dt><dd id="session-role">—</dd></div>
-            <div><dt>Token</dt><dd class="token-row">
-              <code id="session-token">—</code>
-              <button type="button" class="btn btn--icon" id="reveal-token-btn" title="Show / hide token">••</button>
-            </dd></div>
-          </dl>
-          <button type="button" class="btn btn--danger" id="logout-btn" data-method="POST" data-path="/auth/logout">Log out</button>
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">Users <span class="badge-admin">admin</span></p>
+          <button class="route" data-panel="panel-users" data-method="GET" data-path="/users">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/users</span>
+          </button>
+          <button class="route" data-panel="panel-users" data-method="POST" data-path="/users">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/users</span>
+          </button>
+          <button class="route" data-panel="panel-users" data-method="PUT" data-path="/users/:id/role">
+            <span class="route__method route__method--put">PUT</span>
+            <span class="route__path">/users/:id/role</span>
+          </button>
+          <button class="route" data-panel="panel-users" data-method="DELETE" data-path="/users/:id">
+            <span class="route__method route__method--delete">DEL</span>
+            <span class="route__path">/users/:id</span>
+          </button>
         </div>
-      </section>
 
-      <!-- USERS PANEL -->
-      <section class="panel" id="panel-users">
-        <header class="panel__header">
-          <h1>Users</h1>
-          <p>Admin-only. List every account, create one directly, change roles, or remove a user.</p>
-        </header>
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">Favorite Places</p>
+          <button class="route" data-panel="panel-favorites" data-method="GET" data-path="/users/:id/favorites">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/users/:id/favorites</span>
+          </button>
+          <button class="route" data-panel="panel-favorites" data-method="POST" data-path="/users/:id/favorites">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/users/:id/favorites</span>
+          </button>
+        </div>
 
-        <div class="card">
-          <div class="card__row-header">
-            <h2 class="card__title">All users</h2>
-            <button type="button" class="btn btn--ghost" id="refresh-users-btn" data-method="GET" data-path="/users">Refresh</button>
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">Recent Places</p>
+          <button class="route" data-panel="panel-recent" data-method="GET" data-path="/users/:id/recent">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/users/:id/recent</span>
+          </button>
+          <button class="route" data-panel="panel-recent" data-method="POST" data-path="/users/:id/recent">
+            <span class="route__method route__method--post">POST</span>
+            <span class="route__path">/users/:id/recent</span>
+          </button>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">System</p>
+          <button class="route" data-panel="panel-health" data-method="GET" data-path="/health">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/health</span>
+          </button>
+        </div>
+
+        <p class="sidebar__footer">Built to poke at the API without opening UE5 every time.</p>
+
+      </nav>
+
+      <!-- ================= MAIN ================= -->
+      <main class="main">
+
+        <!-- AUTH PANEL -->
+        <section class="panel panel--active" id="panel-auth">
+          <header class="panel__header">
+            <h1>Auth</h1>
+            <p>Sign up, log in, and manage the active bearer token.</p>
+          </header>
+
+          <div class="panel__grid panel__grid--2">
+
+            <form class="card" id="login-form" data-method="POST" data-path="/auth/login">
+              <h2 class="card__title">Log in</h2>
+              <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" id="login-username" autocomplete="username" required>
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" id="login-password" autocomplete="current-password" required>
+              </label>
+              <button type="submit" class="btn btn--primary">Log in</button>
+            </form>
+
+            <form class="card" id="signup-form" data-method="POST" data-path="/auth/signup">
+              <h2 class="card__title">Create account</h2>
+              <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" id="signup-username" autocomplete="username" required>
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" id="signup-password" autocomplete="new-password" required>
+              </label>
+              <button type="submit" class="btn btn--secondary">Create account</button>
+              <p class="card__hint">New accounts always get the <code>user</code> role.</p>
+            </form>
+
           </div>
-          <div class="table-wrap">
-            <table class="table" id="users-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Role</th>
-                  <th>Favorites</th>
-                  <th>Recent</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="users-table-body">
-                <tr class="table__empty-row">
-                  <td colspan="6">No users loaded yet — hit Refresh.</td>
-                </tr>
-              </tbody>
-            </table>
+
+          <div class="card card--session" id="session-card">
+            <h2 class="card__title">Current session</h2>
+            <dl class="session-details">
+              <div>
+                <dt>User</dt>
+                <dd id="session-username">—</dd>
+              </div>
+              <div>
+                <dt>Role</dt>
+                <dd id="session-role">—</dd>
+              </div>
+              <div>
+                <dt>Token</dt>
+                <dd class="token-row">
+                  <code id="session-token">—</code>
+                  <button type="button" class="btn btn--icon" id="reveal-token-btn"
+                    title="Show / hide token">••</button>
+                </dd>
+              </div>
+            </dl>
+            <button type="button" class="btn btn--danger" id="logout-btn" data-method="POST"
+              data-path="/auth/logout">Log out</button>
           </div>
-        </div>
+        </section>
 
-        <div class="panel__grid panel__grid--2">
-          <form class="card" id="create-user-form" data-method="POST" data-path="/users">
-            <h2 class="card__title">Create user</h2>
-            <label class="field">
-              <span>Username</span>
-              <input type="text" name="username" id="create-user-username" required>
-            </label>
-            <label class="field">
-              <span>Password</span>
-              <input type="password" name="password" id="create-user-password" required>
-            </label>
-            <label class="field">
-              <span>Role</span>
-              <select name="role" id="create-user-role">
-                <option value="user" selected>user</option>
-                <option value="admin">admin</option>
-              </select>
-            </label>
-            <button type="submit" class="btn btn--secondary">Create user</button>
-          </form>
+        <!-- USERS PANEL -->
+        <section class="panel" id="panel-users">
+          <header class="panel__header">
+            <h1>Users</h1>
+            <p>Admin-only. List every account, create one directly, change roles, or remove a user.</p>
+          </header>
 
-          <form class="card" id="role-form" data-method="PUT" data-path="/users/:id/role">
-            <h2 class="card__title">Change role</h2>
+          <div class="card">
+            <div class="card__row-header">
+              <h2 class="card__title">All users</h2>
+              <button type="button" class="btn btn--ghost" id="refresh-users-btn" data-method="GET"
+                data-path="/users">Refresh</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table" id="users-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Favorites</th>
+                    <th>Recent</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body">
+                  <tr class="table__empty-row">
+                    <td colspan="6">No users loaded yet — hit Refresh.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel__grid panel__grid--2">
+            <form class="card" id="create-user-form" data-method="POST" data-path="/users">
+              <h2 class="card__title">Create user</h2>
+              <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" id="create-user-username" required>
+              </label>
+              <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" id="create-user-password" required>
+              </label>
+              <label class="field">
+                <span>Role</span>
+                <select name="role" id="create-user-role">
+                  <option value="user" selected>user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </label>
+              <button type="submit" class="btn btn--secondary">Create user</button>
+            </form>
+
+            <form class="card" id="role-form" data-method="PUT" data-path="/users/:id/role">
+              <h2 class="card__title">Change role</h2>
+              <label class="field">
+                <span>User ID</span>
+                <input type="text" name="userId" id="role-user-id" placeholder="user-001" required>
+              </label>
+              <label class="field">
+                <span>New role</span>
+                <select name="role" id="role-new-role">
+                  <option value="user">user</option>
+                  <option value="admin">admin</option>
+                </select>
+              </label>
+              <button type="submit" class="btn btn--secondary">Update role</button>
+            </form>
+          </div>
+
+          <form class="card card--danger-zone" id="delete-user-form" data-method="DELETE" data-path="/users/:id">
+            <h2 class="card__title">Delete user</h2>
             <label class="field">
               <span>User ID</span>
-              <input type="text" name="userId" id="role-user-id" placeholder="user-001" required>
+              <input type="text" name="userId" id="delete-user-id" placeholder="user-001" required>
             </label>
-            <label class="field">
-              <span>New role</span>
-              <select name="role" id="role-new-role">
-                <option value="user">user</option>
-                <option value="admin">admin</option>
-              </select>
-            </label>
-            <button type="submit" class="btn btn--secondary">Update role</button>
+            <button type="submit" class="btn btn--danger">Delete user</button>
           </form>
-        </div>
+        </section>
 
-        <form class="card card--danger-zone" id="delete-user-form" data-method="DELETE" data-path="/users/:id">
-          <h2 class="card__title">Delete user</h2>
-          <label class="field">
-            <span>User ID</span>
-            <input type="text" name="userId" id="delete-user-id" placeholder="user-001" required>
-          </label>
-          <button type="submit" class="btn btn--danger">Delete user</button>
-        </form>
-      </section>
+        <!-- FAVORITES PANEL -->
+        <section class="panel" id="panel-favorites">
+          <header class="panel__header">
+            <h1>Favorite places</h1>
+            <p>Per-user saved places. Enter a user ID once to scope every action below.</p>
+          </header>
 
-      <!-- FAVORITES PANEL -->
-      <section class="panel" id="panel-favorites">
-        <header class="panel__header">
-          <h1>Favorite places</h1>
-          <p>Per-user saved places. Enter a user ID once to scope every action below.</p>
-        </header>
-
-        <div class="card">
-          <div class="card__row-header">
-            <h2 class="card__title">Scope</h2>
-          </div>
-          <label class="field field--inline">
-            <span>User ID</span>
-            <input type="text" id="favorites-user-id" placeholder="user-001">
-            <button type="button" class="btn btn--ghost" id="load-favorites-btn" data-method="GET" data-path="/users/:id/favorites">Load</button>
-          </label>
-        </div>
-
-        <div class="card">
-          <h2 class="card__title">Saved favorites</h2>
-          <ul class="place-list" id="favorites-list">
-            <li class="place-list__empty">No favorites loaded yet.</li>
-          </ul>
-        </div>
-
-        <form class="card" id="add-favorite-form" data-method="POST" data-path="/users/:id/favorites">
-          <h2 class="card__title">Add favorite</h2>
-          <div class="field-row">
-            <label class="field">
-              <span>Place ID</span>
-              <input type="text" name="placeId" id="favorite-place-id" placeholder="place-01" required>
-            </label>
-            <label class="field">
-              <span>Name</span>
-              <input type="text" name="name" id="favorite-place-name" placeholder="place-name-01" required>
+          <div class="card">
+            <div class="card__row-header">
+              <h2 class="card__title">Scope</h2>
+            </div>
+            <label class="field field--inline">
+              <span>User ID</span>
+              <input type="text" id="favorites-user-id" placeholder="user-001">
+              <button type="button" class="btn btn--ghost" id="load-favorites-btn" data-method="GET"
+                data-path="/users/:id/favorites">Load</button>
             </label>
           </div>
-          <button type="submit" class="btn btn--secondary">Add favorite</button>
-        </form>
-      </section>
 
-      <!-- RECENT PANEL -->
-      <section class="panel" id="panel-recent">
-        <header class="panel__header">
-          <h1>Recent places</h1>
-          <p>Most-recently-visited list per user, capped at 10 entries.</p>
-        </header>
-
-        <div class="card">
-          <div class="card__row-header">
-            <h2 class="card__title">Scope</h2>
+          <div class="card">
+            <h2 class="card__title">Saved favorites</h2>
+            <ul class="place-list" id="favorites-list">
+              <li class="place-list__empty">No favorites loaded yet.</li>
+            </ul>
           </div>
-          <label class="field field--inline">
-            <span>User ID</span>
-            <input type="text" id="recent-user-id" placeholder="user-001">
-            <button type="button" class="btn btn--ghost" id="load-recent-btn" data-method="GET" data-path="/users/:id/recent">Load</button>
-          </label>
-        </div>
 
-        <div class="card">
-          <h2 class="card__title">Recently saved</h2>
-          <ul class="place-list place-list--timeline" id="recent-list">
-            <li class="place-list__empty">No recent places loaded yet.</li>
-          </ul>
-        </div>
+          <form class="card" id="add-favorite-form" data-method="POST" data-path="/users/:id/favorites">
+            <h2 class="card__title">Add favorite</h2>
+            <div class="field-row">
+              <label class="field">
+                <span>Place ID</span>
+                <input type="text" name="placeId" id="favorite-place-id" placeholder="place-01" required>
+              </label>
+              <label class="field">
+                <span>Name</span>
+                <input type="text" name="name" id="favorite-place-name" placeholder="place-name-01" required>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--secondary">Add favorite</button>
+          </form>
+        </section>
 
-        <form class="card" id="add-recent-form" data-method="POST" data-path="/users/:id/recent">
-          <h2 class="card__title">Add recent place</h2>
-          <div class="field-row">
-            <label class="field">
-              <span>Place ID</span>
-              <input type="text" name="placeId" id="recent-place-id" placeholder="place-05" required>
+        <!-- RECENT PANEL -->
+        <section class="panel" id="panel-recent">
+          <header class="panel__header">
+            <h1>Recent places</h1>
+            <p>Most-recently-visited list per user, capped at 10 entries.</p>
+          </header>
+
+          <div class="card">
+            <div class="card__row-header">
+              <h2 class="card__title">Scope</h2>
+            </div>
+            <label class="field field--inline">
+              <span>User ID</span>
+              <input type="text" id="recent-user-id" placeholder="user-001">
+              <button type="button" class="btn btn--ghost" id="load-recent-btn" data-method="GET"
+                data-path="/users/:id/recent">Load</button>
             </label>
-            <label class="field">
-              <span>Name</span>
-              <input type="text" name="name" id="recent-place-name" placeholder="place-name-05" required>
-            </label>
           </div>
-          <button type="submit" class="btn btn--secondary">Add to recent</button>
-        </form>
-      </section>
 
-      <!-- HEALTH PANEL -->
-      <section class="panel" id="panel-health">
-        <header class="panel__header">
-          <h1>Health</h1>
-          <p>Basic liveness check against the running server.</p>
-        </header>
-
-        <div class="card card--health">
-          <div class="health-stat">
-            <span class="health-stat__label">Status</span>
-            <span class="health-stat__value" id="health-status">unknown</span>
+          <div class="card">
+            <h2 class="card__title">Recently saved</h2>
+            <ul class="place-list place-list--timeline" id="recent-list">
+              <li class="place-list__empty">No recent places loaded yet.</li>
+            </ul>
           </div>
-          <div class="health-stat">
-            <span class="health-stat__label">User count</span>
-            <span class="health-stat__value" id="health-usercount">—</span>
-          </div>
-          <button type="button" class="btn btn--primary" id="check-health-btn" data-method="GET" data-path="/health">Check now</button>
-        </div>
-      </section>
 
-    </main>
+          <form class="card" id="add-recent-form" data-method="POST" data-path="/users/:id/recent">
+            <h2 class="card__title">Add recent place</h2>
+            <div class="field-row">
+              <label class="field">
+                <span>Place ID</span>
+                <input type="text" name="placeId" id="recent-place-id" placeholder="place-05" required>
+              </label>
+              <label class="field">
+                <span>Name</span>
+                <input type="text" name="name" id="recent-place-name" placeholder="place-name-05" required>
+              </label>
+            </div>
+            <button type="submit" class="btn btn--secondary">Add to recent</button>
+          </form>
+        </section>
+
+        <!-- HEALTH PANEL -->
+        <section class="panel" id="panel-health">
+          <header class="panel__header">
+            <h1>Health</h1>
+            <p>Basic liveness check against the running server.</p>
+          </header>
+
+          <div class="card card--health">
+            <div class="health-stat">
+              <span class="health-stat__label">Status</span>
+              <span class="health-stat__value" id="health-status">unknown</span>
+            </div>
+            <div class="health-stat">
+              <span class="health-stat__label">User count</span>
+              <span class="health-stat__value" id="health-usercount">—</span>
+            </div>
+            <button type="button" class="btn btn--primary" id="check-health-btn" data-method="GET"
+              data-path="/health">Check now</button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ================= RESPONSE CONSOLE ================= -->
+    <footer class="console" id="console">
+      <div class="console__bar" id="console-toggle">
+        <span class="console__title">Request log</span>
+        <span class="console__count" id="console-count">0</span>
+        <button type="button" class="btn btn--ghost btn--tiny" id="clear-console-btn">Clear</button>
+        <button type="button" class="btn btn--ghost btn--tiny" id="console-collapse-btn">Collapse</button>
+      </div>
+      <div class="console__body" id="console-log">
+        <p class="console__placeholder">Requests you send will be logged here — method, route, status, and response
+          body.</p>
+      </div>
+    </footer>
+
   </div>
 
-  <!-- ================= RESPONSE CONSOLE ================= -->
-  <footer class="console" id="console">
-    <div class="console__bar" id="console-toggle">
-      <span class="console__title">Request log</span>
-      <span class="console__count" id="console-count">0</span>
-      <button type="button" class="btn btn--ghost btn--tiny" id="clear-console-btn">Clear</button>
-      <button type="button" class="btn btn--ghost btn--tiny" id="console-collapse-btn">Collapse</button>
-    </div>
-    <div class="console__body" id="console-log">
-      <p class="console__placeholder">Requests you send will be logged here — method, route, status, and response body.</p>
-    </div>
-  </footer>
-
-</div>
-
-<script src="app.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
+
 </html>
