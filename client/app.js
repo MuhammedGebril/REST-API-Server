@@ -558,3 +558,197 @@ document.getElementById('check-health-btn').addEventListener('click', checkHealt
 // Check once on page load so the status dot isn't just sitting
 // there gray until you click something.
 checkHealth();
+
+/* ----------------------------------------------------------
+   9. DUAS (external API — UmmahAPI, not the mock server)
+   This is a completely separate host from the base-url input
+   above, so it gets its own small request helper instead of
+   going through apiRequest(). No auth token is attached — the
+   free tier of UmmahAPI works without one — but there's an
+   optional API key field for the higher rate limit.
+   Every dua response from UmmahAPI comes back wrapped as
+   { data: ... }, so this helper unwraps that once, here,
+   instead of every caller having to remember to do it.
+   ---------------------------------------------------------- */
+
+const DUAS_API_BASE = 'https://ummahapi.com';
+
+function getDuasApiKey() {
+  return document.getElementById('duas-api-key').value.trim();
+}
+
+async function duasRequest(path, params) {
+  const url = new URL(DUAS_API_BASE + path);
+
+  if (params) {
+    Object.keys(params).forEach(function (key) {
+      if (params[key]) {
+        url.searchParams.set(key, params[key]);
+      }
+    });
+  }
+
+  const apiKey = getDuasApiKey();
+  if (apiKey) {
+    url.searchParams.set('apikey', apiKey);
+  }
+
+  const logPath = 'ummahapi.com' + url.pathname + url.search;
+
+  let response;
+  try {
+    response = await fetch(url.toString());
+  } catch (networkError) {
+    logToConsole('GET', logPath, 'ERR', 'Could not reach UmmahAPI (' + networkError.message + ')');
+    throw networkError;
+  }
+
+  let data = null;
+  try {
+    data = await response.json();
+  } catch (parseError) {
+    data = null;
+  }
+
+  logToConsole('GET', logPath, response.status, data);
+
+  if (!response.ok) {
+    const message = (data && data.error) ? data.error : 'Request failed with status ' + response.status;
+    throw new Error(message);
+  }
+
+  // UmmahAPI wraps every payload as { data: ... } — unwrap once here.
+  return (data && data.data !== undefined) ? data.data : data;
+}
+
+function renderDua(containerId, dua) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+
+  const arabic = document.createElement('p');
+  arabic.className = 'dua-card__arabic';
+  arabic.textContent = dua.arabic;
+  container.appendChild(arabic);
+
+  const transliteration = document.createElement('p');
+  transliteration.className = 'dua-card__transliteration';
+  transliteration.textContent = dua.transliteration;
+  container.appendChild(transliteration);
+
+  const translation = document.createElement('p');
+  translation.className = 'dua-card__translation';
+  translation.textContent = dua.translation;
+  container.appendChild(translation);
+
+  const meta = document.createElement('div');
+  meta.className = 'dua-card__meta';
+  if (dua.category) {
+    const categoryTag = document.createElement('span');
+    categoryTag.textContent = dua.category;
+    meta.appendChild(categoryTag);
+  }
+  if (dua.reference) {
+    const referenceTag = document.createElement('span');
+    referenceTag.textContent = dua.reference;
+    meta.appendChild(referenceTag);
+  }
+  container.appendChild(meta);
+}
+
+function renderDuaResults(duas) {
+  const list = document.getElementById('dua-results-list');
+  list.innerHTML = '';
+
+  if (!duas || duas.length === 0) {
+    const empty = document.createElement('li');
+    empty.className = 'dua-list__empty';
+    empty.textContent = 'No duas found.';
+    list.appendChild(empty);
+    return;
+  }
+
+  duas.forEach(function (dua) {
+    const item = document.createElement('li');
+
+    const arabic = document.createElement('p');
+    arabic.className = 'dua-card__arabic';
+    arabic.textContent = dua.arabic;
+    item.appendChild(arabic);
+
+    const translation = document.createElement('p');
+    translation.className = 'dua-card__translation';
+    translation.textContent = dua.translation;
+    item.appendChild(translation);
+
+    if (dua.reference) {
+      const reference = document.createElement('p');
+      reference.className = 'dua-card__transliteration'; // reusing the small muted-text style
+      reference.textContent = dua.reference;
+      item.appendChild(reference);
+    }
+
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('random-dua-btn').addEventListener('click', async function () {
+  try {
+    const dua = await duasRequest('/api/duas/random');
+    renderDua('random-dua-display', dua);
+  } catch (err) {
+    alert('Could not fetch a random dua: ' + err.message);
+  }
+});
+
+async function loadDuasByCategory(category) {
+  try {
+    const duas = await duasRequest('/api/duas/category/' + category);
+    renderDuaResults(duas);
+  } catch (err) {
+    alert('Could not load "' + category + '" duas: ' + err.message);
+  }
+}
+
+async function loadDuaCategories() {
+  const container = document.getElementById('dua-categories');
+  try {
+    const categories = await duasRequest('/api/duas/categories');
+    container.innerHTML = '';
+
+    // Handling both a plain array of names and an array of
+    // { category, count } objects here, in case the exact shape
+    // differs slightly from what's in the docs — better than the
+    // whole panel breaking over a field name mismatch.
+    categories.forEach(function (entry) {
+      const name = typeof entry === 'string' ? entry : (entry.category || entry.name);
+      const count = (entry && entry.count) ? ' (' + entry.count + ')' : '';
+
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'tag-pill';
+      pill.textContent = name + count;
+      pill.addEventListener('click', function () { loadDuasByCategory(name); });
+      container.appendChild(pill);
+    });
+  } catch (err) {
+    container.innerHTML = '<p class="tag-list__empty">Could not load categories: ' + err.message + '</p>';
+  }
+}
+
+document.getElementById('dua-search-form').addEventListener('submit', async function (event) {
+  event.preventDefault();
+  clearFormError(event.target);
+
+  const query = document.getElementById('dua-search-query').value.trim();
+
+  try {
+    const duas = await duasRequest('/api/duas/search', { q: query });
+    renderDuaResults(duas);
+  } catch (err) {
+    showFormError(event.target, err.message);
+  }
+});
+
+// Load the category pills once on page load, same reasoning as
+// the automatic health check above.
+loadDuaCategories();

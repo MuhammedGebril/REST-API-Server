@@ -28,7 +28,7 @@
     <header class="topbar">
       <div class="topbar__brand">
         <span class="brand__dot" id="status-dot" title="Server status"></span>
-        <span class="brand__name">UE5 Mock Server</span>
+        <span class="brand__name">Mock Server</span>
         <span class="brand__tag">test client</span>
       </div>
 
@@ -113,6 +113,22 @@
           <button class="route" data-panel="panel-health" data-method="GET" data-path="/health">
             <span class="route__method route__method--get">GET</span>
             <span class="route__path">/health</span>
+          </button>
+        </div>
+
+        <div class="sidebar__group">
+          <p class="sidebar__group-title">Duas <span class="badge-external">external</span></p>
+          <button class="route" data-panel="panel-duas" data-method="GET" data-path="/api/duas/random">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/duas/random</span>
+          </button>
+          <button class="route" data-panel="panel-duas" data-method="GET" data-path="/api/duas/categories">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/duas/categories</span>
+          </button>
+          <button class="route" data-panel="panel-duas" data-method="GET" data-path="/api/duas/search">
+            <span class="route__method route__method--get">GET</span>
+            <span class="route__path">/duas/search</span>
           </button>
         </div>
 
@@ -370,6 +386,60 @@
             </div>
             <button type="button" class="btn btn--primary" id="check-health-btn" data-method="GET"
               data-path="/health">Check now</button>
+          </div>
+        </section>
+
+        <!-- DUAS PANEL — external API, not the mock server -->
+        <section class="panel" id="panel-duas">
+          <header class="panel__header">
+            <h1>Duas <span class="badge-external">external API</span></h1>
+            <p>This panel doesn't touch your Flask server at all — it calls <a href="https://ummahapi.com"
+                target="_blank" rel="noopener">UmmahAPI</a> directly, 126 duas across 27 categories, free, no key
+              required. This is the "external API" half of the showcase.</p>
+          </header>
+
+          <div class="card">
+            <div class="card__row-header">
+              <h2 class="card__title">API key (optional)</h2>
+            </div>
+            <label class="field field--inline">
+              <span>Key</span>
+              <input type="text" id="duas-api-key" placeholder="leave blank — the free tier is 100 req/min">
+            </label>
+          </div>
+
+          <div class="card">
+            <div class="card__row-header">
+              <h2 class="card__title">Random dua</h2>
+              <button type="button" class="btn btn--ghost" id="random-dua-btn" data-method="GET"
+                data-path="/api/duas/random">Get random</button>
+            </div>
+            <div class="dua-card" id="random-dua-display">
+              <p class="dua-card__empty">Click "Get random" to fetch one.</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card__title">Browse by category</h2>
+            <div class="tag-list" id="dua-categories">
+              <p class="tag-list__empty">Loading categories…</p>
+            </div>
+          </div>
+
+          <form class="card" id="dua-search-form" data-method="GET" data-path="/api/duas/search">
+            <h2 class="card__title">Search</h2>
+            <label class="field field--inline">
+              <span>Query</span>
+              <input type="text" id="dua-search-query" placeholder="e.g. travel, forgiveness, morning" required>
+              <button type="submit" class="btn btn--secondary">Search</button>
+            </label>
+          </form>
+
+          <div class="card">
+            <h2 class="card__title">Results</h2>
+            <ul class="dua-list" id="dua-results-list">
+              <li class="dua-list__empty">No results yet — search above or pick a category.</li>
+            </ul>
           </div>
         </section>
 

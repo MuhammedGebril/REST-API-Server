@@ -29,8 +29,9 @@ app = Flask(__name__)
 # __name__ tells Flask where your app lives so it can find files
 # Think of it like the Node.js equivalent of:  const app = express()
 
+from flask_cors import CORS
 
-
+CORS(app)
 
 # ═══════════════════════════════════════════════════════════════
 # DATABASE HELPERS
