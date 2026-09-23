@@ -100,6 +100,14 @@
       "role": "admin",
       "favoritePlaces": [],
       "recentSavedPlaces": []
+    },
+    {
+      "id": "user-009",
+      "username": "mohamed.gebril1220@gmail.com",
+      "password": "49imumUiFp@@hNS",
+      "role": "user",
+      "favoritePlaces": [],
+      "recentSavedPlaces": []
     }
   ]
 }

@@ -8,8 +8,6 @@ import os            # built-in: file paths
 import secrets       # built-in: generate secure random tokens
 from datetime import datetime, timezone  # built-in: timestamps
 from functools import wraps              # built-in: needed for decorators
-import sys
-sys.stdout.reconfigure(encoding="utf-8")
 
 
 from flask import Flask, request, jsonify
@@ -29,9 +27,8 @@ app = Flask(__name__)
 # __name__ tells Flask where your app lives so it can find files
 # Think of it like the Node.js equivalent of:  const app = express()
 
-from flask_cors import CORS
 
-CORS(app)
+
 
 # ═══════════════════════════════════════════════════════════════
 # DATABASE HELPERS
@@ -227,11 +224,16 @@ def log_request():
 
 
     # request.is_json checks if the Content-Type is application/json
-    if request.is_json and request.get_json():
-        body = request.get_json().copy()
-        if "password" in body:
-            body["password"] = "****"  # mask password in logs
-        print(f"Body    : {json.dumps(body, indent=2)}")
+    # silent=True tells Flask to return None instead of raising a 400
+    # if the body is empty or isn't valid JSON — e.g. a GET request
+    # that still sends a "Content-Type: application/json" header
+    if request.is_json:
+        body = request.get_json(silent=True)
+        if body:
+            body = body.copy()
+            if "password" in body:
+                body["password"] = "****"  # mask password in logs
+            print(f"Body    : {json.dumps(body, indent=2)}")
 
 
 
@@ -798,4 +800,3 @@ if __name__ == "__main__":
         debug=True         # auto-restarts server when you save server.py
                            # also shows detailed error pages
     )
-

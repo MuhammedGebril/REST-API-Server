@@ -39,7 +39,13 @@ function getBaseUrl() {
 // header, and how to log to the console panel.
 async function apiRequest(method, path, body) {
   const url = getBaseUrl() + path;
-  const headers = { 'Content-Type': 'application/json' };
+  const headers = {};
+  // Only claim a JSON body when there actually is one — sending
+  // "Content-Type: application/json" on a bodyless GET/DELETE is
+  // misleading and is exactly what triggers the server's 400 above.
+  if (body) {
+    headers['Content-Type'] = 'application/json';
+  }
   if (authToken) {
     headers['Authorization'] = 'Bearer ' + authToken;
   }
@@ -691,6 +697,26 @@ function renderDuaResults(duas) {
   });
 }
 
+// The category/search endpoints don't necessarily put the array
+// straight under "data" the way /random puts a single dua there —
+// some REST APIs nest a collection one level deeper (e.g. under a
+// "duas" or "results" key alongside a count). Rather than guess
+// wrong again, this checks a few likely shapes and falls back to
+// an empty list instead of crashing the whole panel.
+function normalizeDuaList(payload) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (payload && Array.isArray(payload.duas)) {
+    return payload.duas;
+  }
+  if (payload && Array.isArray(payload.results)) {
+    return payload.results;
+  }
+  console.warn('Unexpected duas response shape — check the Network tab:', payload);
+  return [];
+}
+
 document.getElementById('random-dua-btn').addEventListener('click', async function () {
   try {
     const dua = await duasRequest('/api/duas/random');
@@ -703,7 +729,7 @@ document.getElementById('random-dua-btn').addEventListener('click', async functi
 async function loadDuasByCategory(category) {
   try {
     const duas = await duasRequest('/api/duas/category/' + category);
-    renderDuaResults(duas);
+    renderDuaResults(normalizeDuaList(duas));
   } catch (err) {
     alert('Could not load "' + category + '" duas: ' + err.message);
   }
@@ -743,7 +769,7 @@ document.getElementById('dua-search-form').addEventListener('submit', async func
 
   try {
     const duas = await duasRequest('/api/duas/search', { q: query });
-    renderDuaResults(duas);
+    renderDuaResults(normalizeDuaList(duas));
   } catch (err) {
     showFormError(event.target, err.message);
   }
