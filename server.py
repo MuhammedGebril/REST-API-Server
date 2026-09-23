@@ -15,6 +15,14 @@ from flask import Flask, request, jsonify
 # request → gives you access to incoming request data (body, headers, etc.)
 # jsonify → converts a Python dict to a proper JSON HTTP response
 
+from flask_cors import CORS
+# Flask's automatic OPTIONS handling answers "does this route accept
+# this method" — it does NOT answer "is cross-origin allowed". That
+# second question is what the browser actually checks before sending
+# a real POST/PUT/DELETE from a page on a different origin. CORS(app)
+# below is what adds the Access-Control-Allow-Origin header that
+# answers it.
+
 
 
 
@@ -26,6 +34,11 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 # __name__ tells Flask where your app lives so it can find files
 # Think of it like the Node.js equivalent of:  const app = express()
+
+CORS(app)
+# Wide open (allows any origin) — fine for a local mock server you're
+# testing against yourself. Don't ship this config as-is for anything
+# that isn't a local dev/demo tool.
 
 
 
